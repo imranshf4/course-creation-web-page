@@ -305,7 +305,8 @@
             gap: 8px;
         }
 
-        .btn_delete {
+        .btn_delete,
+        .btn_delete_content {
             padding: 10px 20px;
             /* border-radius: 8px; */
             border: none;
@@ -366,7 +367,7 @@
         }
 
         .btn_delete.remove-module,
-        .btn_delete.remove-content {
+        .btn_delete_content.remove-content {
             background: #ff8787;
             color: #c92a2a;
             position: absolute;
@@ -375,7 +376,7 @@
         }
 
         .btn_delete.remove-module:hover,
-        .btn_delete.remove-content:hover {
+        .btn_delete_content.remove-content:hover {
             background: #fa5252;
         }
 
@@ -588,6 +589,14 @@
             width: 50%;
         }
 
+        .module:first-child .btn_delete {
+            display: none;
+        }
+
+        .main_content:first-child .btn_delete_content {
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -751,8 +760,39 @@
                 $('.main-content').toggleClass('main-content-open');
             });
 
+            // // Function to add a new module
+            // function addModule() {
+            //     $(".empty-state").remove();
+            //     moduleCount++;
+            //     let moduleHtml = `
+            //         <div class="module" data-module="${moduleCount}">
+            //             <h3 class="menu_content has_submenu">Module ${moduleCount}</h3>
+            //             <div class="module_submenu form_content custom_padding" style="margin-top: 10px">
+            //                 <div class="module-header">
+            //                    <input type="text" class="module-title-input" placeholder="Module Title">
+            //                 </div>
+            //                 <div class="module-actions">
+            //                    <button class="btn add-content"> Add Content <i class="fas fa-plus"></i></button>
+            //                 </div>
+            //                 <div class="module-content"></div>
+            //             </div>
+            //             <span class="btn_delete remove-module">x</span>
+            //         </div>
+            //     `;
+            //     $("#modules").append(moduleHtml);
+
+            //     // Auto-activate the first module only
+            //     if (moduleCount === 1) {
+            //         $("#modules .module:first-child .has_submenu").addClass("open active_title");
+            //         $("#modules .module:first-child .module_submenu").addClass("open");
+            //     }
+
+            // }
+            // addModule();
+
             // Add Module
-            $(".add-module").click(function() {
+            function addModule() {
+                // $(".add-module").click(function() {
                 $(".empty-state").remove();
                 moduleCount++;
                 let moduleHtml = `
@@ -771,9 +811,28 @@
                     </div>
                 `;
                 $("#modules").append(moduleHtml);
-            });
 
-            $(document).on("click", ".add-content", function() {
+                if (moduleCount === 1) {
+                    $("#modules .module:first-child .has_submenu").addClass("open active_title");
+                    $("#modules .module:first-child .module_submenu").addClass("open");
+
+                    let $firstModule = $("#modules .module:first-child"); $firstModule.find(".has_submenu").addClass("open active_title"); 
+                    $firstModule.find(".module_submenu").addClass("open"); 
+                    addContentToModule($firstModule);
+                }
+                // });
+
+                // $(document).on("click", ".add-content", function(e) {
+                //     e.preventDefault();
+
+                //     let module = $(this).closest(".module");
+                //     addContentToModule(module);
+                // });
+            }
+
+
+            function addContentToModule(moduleElement) {
+                // $(document).on("click", ".add-content", function() {
                 contentCount++;
                 let contentHtml = `
                     <div class="main_content" id="content_submenu">
@@ -789,10 +848,28 @@
                             <input type="text" class="content-input" placeholder="Video URL">
                             <input type="text" class="content-input" placeholder="Video Length (HH:MM:SS)">
                         </div>
-                        <button class="btn_delete remove-content">x</button>
+                        <button class="btn_delete_content remove-content">x</button>
                     </div>
                 `;
-                $(this).closest('.module').find('.module-content').append(contentHtml);
+                //     $(this).closest('.module').find('.module-content').append(contentHtml);
+                // });
+
+                moduleElement.find('.module-content').append(contentHtml);
+
+                if (contentCount === 1) {
+                    moduleElement.find('.menu_title.has_submenu:first').addClass('open active_title');
+                    moduleElement.find('.content_submenu:first').addClass('open');
+                }
+            }
+
+            addModule();
+
+            $(".btn.add-module").click(function() {
+                addModule();
+            });
+
+            $(document).on("click", ".add-content", function() {
+                addContentToModule($(this).closest('.module'));
             });
 
             $(document).on("click", ".has_submenu", function(e) {
@@ -830,9 +907,9 @@
                 $(this).toggleClass('active_title');
             });
 
-            $(".btn.save").click(function() {
-                alert("Course saved successfully!");
-            });
+            // $(".btn.save").click(function() {
+            //     alert("Course saved successfully!");
+            // });
 
             $(".btn.cancel").click(function() {
                 if (confirm("Are you sure you want to cancel? All changes will be lost.")) {
