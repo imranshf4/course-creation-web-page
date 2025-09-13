@@ -716,11 +716,11 @@
                 <div class="form-group">
                     <div class="form-field">
                         <h3>Course Title</h3>
-                        <input type="text" style="width: 100%;margin-top: 10px" id="courseTitle" placeholder="Course Title">
+                        <input type="text" style="width: 100%;margin-top: 10px" id="courseTitle" placeholder="Course Title" required>
                     </div>
                     <div class="form-field">
                         <h3>Feature Video URL</h3>
-                        <input type="text" style="width: 100%;margin-top: 10px" id="featureVideo" placeholder="Feature Video URL">
+                        <input type="text" style="width: 100%;margin-top: 10px" id="featureVideo" placeholder="Feature Video URL" required>
                     </div>
                 </div>
             </div>
@@ -800,7 +800,7 @@
                         <h3 class="menu_content has_submenu">Module ${moduleCount}</h3>
                         <div class="module_submenu form_content custom_padding" style="margin-top: 10px">
                             <div class="module-header">
-                               <input type="text" class="module-title-input" placeholder="Module Title">
+                               <input type="text" class="module-title-input" placeholder="Module Title" required>
                             </div>
                             <div class="module-actions">
                                <button class="btn add-content"> Add Content <i class="fas fa-plus"></i></button>
@@ -816,8 +816,9 @@
                     $("#modules .module:first-child .has_submenu").addClass("open active_title");
                     $("#modules .module:first-child .module_submenu").addClass("open");
 
-                    let $firstModule = $("#modules .module:first-child"); $firstModule.find(".has_submenu").addClass("open active_title"); 
-                    $firstModule.find(".module_submenu").addClass("open"); 
+                    let $firstModule = $("#modules .module:first-child");
+                    $firstModule.find(".has_submenu").addClass("open active_title");
+                    $firstModule.find(".module_submenu").addClass("open");
                     addContentToModule($firstModule);
                 }
                 // });
@@ -838,15 +839,15 @@
                     <div class="main_content" id="content_submenu">
                         <h3 class="menu_title has_submenu">Content ${contentCount}</h3>
                         <div class="content content_submenu form_content custom_padding" data-content="${contentCount}">
-                            <input type="text" class="content-input" placeholder="Content Title">
-                            <select class="content-input">
+                            <input type="text" class="content-input" placeholder="Content Title" required>
+                            <select class="content-input" required>
                                 <option value="">Video Source Type</option>
                                 <option value="youtube">YouTube</option>
                                 <option value="vimeo">Vimeo</option>
                                 <option value="mp4">MP4</option>
                             </select>
-                            <input type="text" class="content-input" placeholder="Video URL">
-                            <input type="text" class="content-input" placeholder="Video Length (HH:MM:SS)">
+                            <input type="text" class="content-input" placeholder="Video URL" required>
+                            <input type="text" class="content-input" placeholder="Video Length (HH:MM:SS)" required>
                         </div>
                         <button class="btn_delete_content remove-content">x</button>
                     </div>
@@ -919,6 +920,40 @@
             });
 
             $(".btn.save").click(function() {
+                let isValid = true;
+                let errorMessage = "";
+
+                if (!$("#courseTitle").val().trim()) {
+                    isValid = false;
+                    errorMessage += "- Course title is required.\n";
+                }
+
+                $(".module").each(function(index) {
+                    let moduleTitle = $(this).find(".module-title-input").val().trim();
+                    if (!moduleTitle) {
+                        isValid = false;
+                        errorMessage += `- Module ${index + 1} title is required.\n`;
+                    }
+
+                    $(this).find(".content").each(function(contentIndex) {
+                        let contentTitle = $(this).find("input[placeholder='Content Title']").val().trim();
+                        let sourceType = $(this).find("select").val();
+                        let videoUrl = $(this).find("input[placeholder='Video URL']").val().trim();
+                        let videoLength = $(this).find("input[placeholder='Video Length (HH:MM:SS)']").val().trim();
+
+                        if (!contentTitle || !sourceType || !videoUrl || !videoLength) {
+                            isValid = false;
+                            errorMessage += `- All fields are required for Content ${contentIndex + 1} in Module ${index + 1}.\n`;
+                        }
+                    });
+                });
+
+                if (!isValid) {
+                    alert("Please fix the following errors:\n" + errorMessage);
+                    return;
+                }
+
+
                 let courseData = {
                     title: $("#courseTitle").val(),
                     feature_video: $("#featureVideo").val(),
