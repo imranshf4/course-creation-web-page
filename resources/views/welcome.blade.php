@@ -211,7 +211,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #4dabf7;
+            background: #2D75F1;
             display: flex;
             align-items: center;
             justify-content: center;
