@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LearnHub - Create Course</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         * {
             box-sizing: border-box;
@@ -14,9 +15,9 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI';
             background: #0f1322;
-            color: #fff;
+            color: #a0a7c9;
             min-height: 100vh;
             display: flex;
         }
@@ -64,6 +65,23 @@
             position: relative;
         }
 
+        .menu_content,
+        .menu_title {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px 15px;
+            /* margin-bottom: 10px; */
+            background: #1b1e2a;
+            border: 1px solid #343a4d;
+            /* border-radius: 6px; */
+        }
+
+        .active_title {
+            background: #343a4d;
+        }
+
         .menu-item:hover,
         .menu-item.active {
             background: #2a2f40;
@@ -80,14 +98,17 @@
         }
 
         .submenu {
-            background: #151822;
+            background: #222736;
             overflow: hidden;
             max-height: 0;
             transition: max-height 0.4s ease;
         }
 
-        .submenu.open {
-            max-height: 500px;
+        .module_submenu {
+            background: #222736;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease;
         }
 
         .submenu-item {
@@ -121,7 +142,8 @@
         .main-content {
             flex: 1;
             margin-left: 260px;
-            padding: 20px;
+            padding: 20px 20px;
+            padding: 20px 20px 20px 0px;
             transition: margin-left 0.3s ease;
         }
 
@@ -129,7 +151,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             background: #1b1e2a;
             padding: 15px 20px;
             border-radius: 10px;
@@ -139,6 +161,33 @@
             display: flex;
             align-items: center;
             gap: 15px;
+        }
+
+        .page-title-course {
+            margin-bottom: 20px;
+        }
+
+        .page-title-course h3 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-left: 7px;
+            margin-bottom: 8px;
+        }
+
+        .page-title-course a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: normal;
+            color: #2D75F1;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .page-title-course a:hover {
+            color: #339af0;
         }
 
         .back-link {
@@ -185,7 +234,7 @@
         .form-group {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
+            /* margin-bottom: 15px; */
         }
 
         .form-group input {
@@ -194,10 +243,44 @@
             border-radius: 8px;
             border: 2px solid #2a2f40;
             background: #151822;
-            color: #fff;
+            color: #a0a7c9;
             font-size: 16px;
             outline: none;
             transition: border-color 0.3s;
+        }
+
+        .form_content input,
+        .form_content select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #2a2f40;
+            background: #151822;
+            color: #74767d;
+            /* appearance: none; */
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+            width: 100%;
+            position: relative;
+            /* opacity: .5; */
+        }
+
+        .form_content select {
+            /* remove default arrow */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            /* control arrow position */
+            background-size: 25px;
+        }
+
+        .form_content input:focus {
+            border-color: #4dabf7;
         }
 
         .form-group input:focus {
@@ -222,10 +305,23 @@
             gap: 8px;
         }
 
+        .btn_delete {
+            padding: 10px 20px;
+            /* border-radius: 8px; */
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .btn.add-module {
-            background: #4dabf7;
-            color: white;
-            margin: 20px;
+            background: #2D75F1;
+            color: #dfe3e9ff;
+            margin: 20px 20px 0px 20px;
         }
 
         .btn.add-module:hover {
@@ -234,7 +330,7 @@
 
         .btn.cancel {
             background: #e74c3c;
-            color: white;
+            color: #dfe3e9ff;
         }
 
         .btn.cancel:hover {
@@ -243,7 +339,7 @@
 
         .btn.save {
             background: #27ae60;
-            color: white;
+            color: #dfe3e9ff;
         }
 
         .btn.save:hover {
@@ -251,43 +347,43 @@
         }
 
         .btn.add-content {
-            background: #8ce99a;
-            color: #2b8a3e;
+            background: #2D75F1;
+            color: #dfe3e9ff;
         }
 
         .btn.add-content:hover {
             background: #69db7c;
         }
 
-        .btn.remove-module,
-        .btn.remove-content {
+        .module {
+            position: relative;
+            padding-right: 60px;
+        }
+
+        .main_content {
+            position: relative;
+            padding-right: 60px;
+        }
+
+        .btn_delete.remove-module,
+        .btn_delete.remove-content {
             background: #ff8787;
             color: #c92a2a;
+            position: absolute;
+            right: 10px;
+            top: 0px;
         }
 
-        .btn.remove-module:hover,
-        .btn.remove-content:hover {
+        .btn_delete.remove-module:hover,
+        .btn_delete.remove-content:hover {
             background: #fa5252;
-        }
-
-        /* Modules */
-        .modules-container {
-            padding: 0 20px 20px;
-        }
-
-        .module {
-            background: #222736;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 8px;
-            position: relative;
         }
 
         .module-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
+            /* margin-bottom: 15px; */
         }
 
         .module-number {
@@ -320,9 +416,7 @@
 
         .content {
             background: #2a2f40;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 8px;
+            margin-top: 5px;
         }
 
         .content-input {
@@ -332,7 +426,8 @@
             border-radius: 6px;
             border: 1px solid #343a4d;
             background: #1b1e2a;
-            color: #fff;
+            /* color: #fff; */
+            position: relative;
         }
 
         select.content-input {
@@ -340,16 +435,17 @@
         }
 
         .actions {
-            margin-top: 30px;
+            margin-top: 20px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: start;
             gap: 15px;
             padding: 20px;
             border-top: 1px solid #2a2f40;
         }
 
         .module-actions {
-            margin-top: 15px;
+            margin-top: 5px;
+            margin-bottom: 15px;
             display: flex;
             gap: 10px;
         }
@@ -376,16 +472,16 @@
             padding: 5px;
         }
 
-        .module-content {
+        /* .module-content {
             min-height: 50px;
-        }
+        } */
 
         /* Mobile menu button */
         .mobile-menu-btn {
             display: block;
             background: none;
             border: none;
-            color: white;
+            color: #dfe3e9ff;
             font-size: 24px;
             cursor: pointer;
             padding: 5px 10px;
@@ -400,6 +496,96 @@
 
         .sidebar.open {
             transform: translateX(-100%);
+        }
+
+        .has_submenu {
+            position: relative;
+            margin: 0;
+            padding-right: 30px;
+        }
+
+        .has_submenu::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            transition: transform 0.3s;
+        }
+
+        .has_submenu.open::after {
+            transform: rotate(180deg);
+        }
+
+        .content.submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .content.submenu.open {
+            max-height: 500px;
+        }
+
+        div#modules {
+            width: 90%;
+        }
+
+        div#modules .module_submenu {
+            width: 90%;
+            display: none;
+            /* padding: 0px 10px 10px; */
+        }
+
+        div#content_submenu .content_submenu {
+            width: 90%;
+            display: none;
+            /* padding: 0px 10px 10px; */
+        }
+
+        .module_submenu.open {
+            max-height: 100%;
+            width: 90%;
+            display: block !important;
+        }
+
+        .content_submenu.open {
+            max-height: 100%;
+            width: 90%;
+            display: block !important;
+        }
+
+        .submenu.open {
+            max-height: 500px;
+        }
+
+        .custom_padding {
+            padding: 10px 10px 10px;
+            background: #1b1e2a;
+            margin: 0px !important;
+            border: 1px solid #343a4d;
+
+        }
+
+        .main-content-open {
+            margin-left: 0px;
+            width: 100%;
+        }
+
+        .module:first-child .menu_content {
+            margin-top: 20px;
+        }
+
+        /* .main_content:last-child .menu_title {
+            margin-bottom: 20px;
+        } */
+
+        .module {
+            margin-left: 20px;
+        }
+
+        .form-field {
+            width: 50%;
         }
 
         /* Responsive */
@@ -426,6 +612,10 @@
             .actions {
                 flex-direction: column;
             }
+
+            .form-field {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -438,15 +628,20 @@
         </div>
 
         <div class="sidebar-menu">
-            <a href="#" class="menu-item">
+            <a href="#" class="menu-item active">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a href="#" class="menu-item active">
+            <a href="#" class="menu-item has-submenu">
                 <i class="fas fa-book"></i>
                 <span>Courses</span>
             </a>
+            <div class="submenu">
+                <a href="#" class="submenu-item">Course Analytics</a>
+                <a href="#" class="submenu-item">Revenue Reports</a>
+                <a href="#" class="submenu-item">Engagement Metrics</a>
+            </div>
 
             <a href="#" class="menu-item has-submenu">
                 <i class="fas fa-graduation-cap"></i>
@@ -492,7 +687,6 @@
                 <button class="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h2>Create a Course</h2>
             </div>
 
             <div class="user-info">
@@ -501,29 +695,37 @@
             </div>
         </div>
 
+        <div class="page-title-course">
+            <h3>Create a Course</h2>
+                <a><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg> Back to Course Page</h4>
+        </div>
+
         <div class="container">
             <div class="course-info">
                 <div class="form-group">
-                    <input type="text" id="courseTitle" placeholder="Course Title">
-                    <input type="text" id="featureVideo" placeholder="Feature Video URL">
-                </div>
-            </div>
-
-            <button class="btn add-module"><i class="fas fa-plus"></i> Add Module</button>
-
-            <div class="modules-container">
-                <div id="modules">
-                    <div class="empty-state">
-                        <i class="far fa-folder-open"></i>
-                        <p>No modules added yet</p>
-                        <p>Click the "Add Module" button to get started</p>
+                    <div class="form-field">
+                        <h3>Course Title</h3>
+                        <input type="text" style="width: 100%;margin-top: 10px" id="courseTitle" placeholder="Course Title">
+                    </div>
+                    <div class="form-field">
+                        <h3>Feature Video URL</h3>
+                        <input type="text" style="width: 100%;margin-top: 10px" id="featureVideo" placeholder="Feature Video URL">
                     </div>
                 </div>
             </div>
 
+            <button class="btn add-module"> Add Module <i class="fas fa-plus"></i></button>
+
+            <div class="modules-container">
+                <div id="modules">
+                </div>
+            </div>
+
             <div class="actions">
-                <button class="btn cancel"><i class="fas fa-times"></i> Cancel</button>
-                <button class="btn save"><i class="fas fa-save"></i> Save Course</button>
+                <button class="btn save"> Save </button>
+                <button class="btn cancel"> Cancel</button>
             </div>
         </div>
     </div>
@@ -534,72 +736,81 @@
             let moduleCount = 0;
             let contentCount = 0;
 
-            // Toggle sidebar on mobile
             $('.mobile-menu-btn').click(function() {
                 $('.sidebar').toggleClass('open');
             });
 
-            // Toggle submenus
             $('.has-submenu').click(function(e) {
                 e.preventDefault();
                 $(this).toggleClass('open');
                 $(this).next('.submenu').toggleClass('open');
             });
 
+            $('.mobile-menu-btn').on('click', function() {
+                // $('.sidebar').toggleClass('open');
+                $('.main-content').toggleClass('main-content-open');
+            });
+
             // Add Module
             $(".add-module").click(function() {
-                // Remove empty state if it exists
                 $(".empty-state").remove();
-
                 moduleCount++;
                 let moduleHtml = `
                     <div class="module" data-module="${moduleCount}">
-                        <div class="module-header">
-                            <div class="module-number">${moduleCount}</div>
-                            <input type="text" class="module-title-input" placeholder="Module Title">
-                            <div class="drag-handle"><i class="fas fa-grip-lines"></i></div>
+                        <h3 class="menu_content has_submenu">Module ${moduleCount}</h3>
+                        <div class="module_submenu form_content custom_padding" style="margin-top: 10px">
+                            <div class="module-header">
+                               <input type="text" class="module-title-input" placeholder="Module Title">
+                            </div>
+                            <div class="module-actions">
+                               <button class="btn add-content"> Add Content <i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="module-content"></div>
                         </div>
-                        <div class="module-content"></div>
-                        <div class="module-actions">
-                            <button class="btn add-content"><i class="fas fa-plus"></i> Add Content</button>
-                            <button class="btn remove-module"><i class="fas fa-trash"></i> Remove Module</button>
-                        </div>
+                        <span class="btn_delete remove-module">x</span>
                     </div>
                 `;
                 $("#modules").append(moduleHtml);
             });
 
-            // Add Content inside Module
             $(document).on("click", ".add-content", function() {
                 contentCount++;
                 let contentHtml = `
-                    <div class="content" data-content="${contentCount}">
-                        <input type="text" class="content-input" placeholder="Content Title">
-                        <select class="content-input">
-                            <option value="">Video Source Type</option>
-                            <option value="youtube">YouTube</option>
-                            <option value="vimeo">Vimeo</option>
-                            <option value="mp4">MP4</option>
-                        </select>
-                        <input type="text" class="content-input" placeholder="Video URL">
-                        <input type="text" class="content-input" placeholder="Video Length (HH:MM:SS)">
-                        <button class="btn remove-content"><i class="fas fa-trash"></i> Remove Content</button>
+                    <div class="main_content" id="content_submenu">
+                        <h3 class="menu_title has_submenu">Content ${contentCount}</h3>
+                        <div class="content content_submenu form_content custom_padding" data-content="${contentCount}">
+                            <input type="text" class="content-input" placeholder="Content Title">
+                            <select class="content-input">
+                                <option value="">Video Source Type</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="vimeo">Vimeo</option>
+                                <option value="mp4">MP4</option>
+                            </select>
+                            <input type="text" class="content-input" placeholder="Video URL">
+                            <input type="text" class="content-input" placeholder="Video Length (HH:MM:SS)">
+                        </div>
+                        <button class="btn_delete remove-content">x</button>
                     </div>
                 `;
                 $(this).closest('.module').find('.module-content').append(contentHtml);
             });
 
-            // Remove Module
+            $(document).on("click", ".has_submenu", function(e) {
+                e.preventDefault();
+                $(this).toggleClass('open');
+                $(this).next('.submenu').toggleClass('open');
+                $(this).next('.module_submenu').toggleClass('open');
+                $(this).next('.content_submenu').toggleClass('open');
+            });
+
             $(document).on("click", ".remove-module", function() {
                 $(this).closest(".module").remove();
                 moduleCount--;
 
-                // Update module numbers
                 $(".module").each(function(index) {
                     $(this).find('.module-number').text(index + 1);
                 });
 
-                // Show empty state if no modules
                 if ($(".module").length === 0) {
                     $("#modules").html(`
                         <div class="empty-state">
@@ -611,23 +822,67 @@
                 }
             });
 
-            // Remove Content
             $(document).on("click", ".remove-content", function() {
-                $(this).closest(".content").remove();
+                $(this).closest(".main_content").remove();
             });
 
-            // Save button action
+            $(document).on("click", "h3.menu_content", function() {
+                $(this).toggleClass('active_title');
+            });
+
             $(".btn.save").click(function() {
                 alert("Course saved successfully!");
             });
 
-            // Cancel button action
             $(".btn.cancel").click(function() {
                 if (confirm("Are you sure you want to cancel? All changes will be lost.")) {
                     alert("Course creation cancelled.");
                     location.reload();
                 }
             });
+
+            $(".btn.save").click(function() {
+                let courseData = {
+                    title: $("#courseTitle").val(),
+                    feature_video: $("#featureVideo").val(),
+                    modules: []
+                };
+
+                $(".module").each(function() {
+                    let moduleTitle = $(this).find(".module-title-input").val();
+                    let moduleObj = {
+                        title: moduleTitle,
+                        contents: []
+                    };
+
+                    $(this).find(".content").each(function() {
+                        let contentObj = {
+                            title: $(this).find("input[placeholder='Content Title']").val(),
+                            source_type: $(this).find("select").val(),
+                            video_url: $(this).find("input[placeholder='Video URL']").val(),
+                            video_length: $(this).find("input[placeholder='Video Length (HH:MM:SS)']").val()
+                        };
+                        moduleObj.contents.push(contentObj);
+                    });
+
+                    courseData.modules.push(moduleObj);
+                });
+
+                $.ajax({
+                    url: "/courses",
+                    method: "POST",
+                    data: {
+                        course: courseData,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(res) {
+                        alert("Course saved successfully!");
+                        console.log(res);
+                    }
+                });
+            });
+
+
         });
     </script>
 </body>
